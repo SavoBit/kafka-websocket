@@ -19,13 +19,27 @@ package us.b3k.kafka.ws.transforms;
 import us.b3k.kafka.ws.messages.AbstractMessage;
 import us.b3k.kafka.ws.messages.BinaryMessage;
 import us.b3k.kafka.ws.messages.TextMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.joda.time.*;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javax.websocket.Session;
 
 public class Transform {
     public void initialize() { }
 
+    private static Logger LOG = LoggerFactory.getLogger(Transform.class);
+
     public AbstractMessage transform(TextMessage message, final Session session) {
+	String m = message.getMessage();
+	DateTime d = new DateTime( DateTimeZone.UTC );
+
+	JsonParser jsonParser = new JsonParser();
+	JsonObject jsonObject = jsonParser.parse(m).getAsJsonObject();
+	jsonObject.addProperty("WhenPublishedToKafka", d.toString());
+	message.setMessage(jsonObject.toString());
         return message;
     }
 
